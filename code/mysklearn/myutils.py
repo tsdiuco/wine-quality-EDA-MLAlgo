@@ -73,3 +73,4 @@ def evaluate_model(classifier, X, y):
     accuracy = myevaluation.accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
     print("Error rate:", 1 - accuracy)
+    
