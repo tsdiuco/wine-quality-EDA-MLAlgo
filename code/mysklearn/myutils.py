@@ -73,8 +73,3 @@ def evaluate_model(classifier, X, y):
     accuracy = myevaluation.accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
     print("Error rate:", 1 - accuracy)
-    print("Precision:", myevaluation.binary_precision_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
-    print("Recall:", myevaluation.binary_recall_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
-    print("F1 score:", myevaluation.binary_f1_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
-    print("Confusion matrix:")
-    print(tabulate(myevaluation.confusion_matrix(y_test, y_pred, labels=['A', 'H']), headers=['A', 'H']))  
