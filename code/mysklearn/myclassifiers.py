@@ -607,7 +607,7 @@ class RandomForestClassifier:
         # Generate a random stratified test set consisting of one third of the original data set, with the remaining two thirds of the instances forming the "remainder set".
         X_train_folds, X_test_folds = myutils.stratified_kfold_cross_validation(train, [], n_splits=3)
         X_train_fold = X_train_folds[0]
-        X_test_fold = X_test_folds[1:]
+        X_test_fold = X_test_folds[0]
         test_set = [train[i] for i in X_test_fold]
         remainder_set = [train[i] for i in X_train_fold]
         trees = {}
