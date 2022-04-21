@@ -1,4 +1,6 @@
 from math import inf
+from os import NGROUPS_MAX
+from random import random
 
 from mysklearn import myutils
 
@@ -295,12 +297,13 @@ class MyDecisionTreeClassifier:
             https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
         Terminology: instance = sample = row and attribute = feature = column
     """
-    def __init__(self):
+    def __init__(self, random_selection=False):
         """Initializer for MyDecisionTreeClassifier.
         """
         self.X_train = None
         self.y_train = None
         self.tree = None
+        self.random_selection = random_selection
 
     def fit(self, X_train, y_train):
         """Fits a decision tree classifier to X_train and y_train using the TDIDT
@@ -457,7 +460,11 @@ class MyDecisionTreeClassifier:
             # basic approach (uses recursion!!):
 
         # select an attribute to split on
-        attribute = self.select_attribute(current_instances, available_attributes)
+        attribute = None
+        if self.random_selection:
+            attribute = self.select_random_attribute(current_instances, available_attributes)
+        else:
+            attribute = self.select_attribute(current_instances, available_attributes)
         available_attributes.remove(attribute) # can't split on this again in
         # this subtree
         tree = ["Attribute", attribute] # start to build the tree!!
@@ -523,6 +530,11 @@ class MyDecisionTreeClassifier:
                 min_attribute = attribute
                 min_attribute_entropy = Enew
         return min_attribute
+
+    def select_random_attribute(self, instances, attributes):
+        # random attribute selection
+        rand_index = np.random.randint(0, len(attributes))
+        return attributes[rand_index]
     
     def partition_instances(self, instances, split_attribute):
         """Partitions instances by attribute value.
@@ -549,3 +561,81 @@ class MyDecisionTreeClassifier:
                 if instance[att_index] == att_value:
                     partitions[att_value].append(instance)
         return partitions
+
+
+class RandomForestClassifier:
+
+    def __init__(self, n_trees, max_depth, min_size, n_features, m):
+        """Initializes a RandomForestClassifier.
+
+        Args:
+            n_trees(int): The number of trees in the forest.
+            max_depth(int): The maximum depth of each tree.
+            min_size(int): The minimum number of samples in a node.
+            n_features(int): The number of features to consider when splitting.
+        """
+        self.n_trees = n_trees
+        self.m = m
+        self.min_size = min_size
+        self.max_depth = max_depth
+        self.num_features = n_features
+    
+    def train(self, train, header, max_depth, num_trees, num_features):
+        """Trains a random forest classifier.
+
+        Args:
+            train(list of list of obj): The list of training instances (samples).
+                The shape of train is (n_train_samples, n_features)
+            header(list of str): The list of attribute names.
+            max_depth(int): The maximum depth of the tree.
+            num_trees(int): The number of trees in the forest.
+            num_features(int): The number of features to consider when training each tree.
+
+        Returns:
+            forest(list of DecisionTree): The list of decision trees.
+
+        1. Generate a random stratified test set consisting of one third of the original data set,
+            with the remaining two thirds of the instances forming the "remainder set".
+        2. Generate N "random" decision trees using bootstrapping (giving a training and validation set)
+            over the remainder set. At each node, build your decision trees by randomly selecting F of
+            the remaining attributes as candidates to partition on. This is the standard random forest
+            approach discussed in class. Note that to build your decision trees you should still use entropy;
+            however, you are selecting from only a (randomly chosen) subset of the available attributes.
+        3. Select the M most accurate of the N decision trees using the corresponding validation sets.
+        4. Use simple majority voting to predict classes using the M decision trees over the test set.
+        """
+        # Generate a random stratified test set consisting of one third of the original data set, with the remaining two thirds of the instances forming the "remainder set".
+        X_train_folds, X_test_folds = myutils.stratified_kfold_cross_validation(train, [], n_splits=3)
+        X_train_fold = X_train_folds[0]
+        X_test_fold = X_test_folds[1:]
+        test_set = [train[i] for i in X_test_fold]
+        remainder_set = [train[i] for i in X_train_fold]
+        trees = {}
+        for i in range(self.n_trees):
+            X_train, X_test, y_train, y_test = myevaluation.train_test_split(remainder_set)
+            classifier = MyDecisionTreeClassifier(random_selection=True)
+            classifier.fit(X_train, y_train)
+            # add accuracy
+            trees[classifier] = classifier.predict(test_set)
+        self.forest = []
+        for accuracy_value in sorted(trees, key=trees.get, reverse=True)[:self.m]:
+            self.forest.append(accuracy_value)
+
+    def predict(self, test):
+        """Predicts the class labels for the test instances.
+
+        Args:
+            test(list of list of obj): The list of test instances.
+                The shape of test is (n_test_samples, n_features)
+            forest(list of DecisionTree): The list of decision trees.
+
+        Returns:
+            predictions(list of str): The list of class labels.
+        """
+        predictions = []
+        for instance in test:
+            instance_predictions = []
+            for tree in self.forest:
+                instance_predictions.append(tree.predict(instance))
+            predictions.append(max(set(instance_predictions), key=instance_predictions.count))
+        return predictions
