@@ -603,3 +603,9 @@ def test_decision_tree_classifier_predict():
     y_test = ['yes', 'yes']
     y_pred = classifier.predict(X_test)
     assert y_pred == y_test
+
+def test_random_forest_classifier_fit():
+    pass
+
+def test_random_forest_classifier_predict():
+    pass
