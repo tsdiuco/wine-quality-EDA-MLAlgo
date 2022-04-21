@@ -1,4 +1,6 @@
 import numpy as np
+import myevaluation
+from tabulate import tabulate
 
 def compute_euclidean_distance(v1, v2):
     return np.sqrt(sum([(v1[i] - v2[i]) ** 2 for i in range(len(v1))]))
@@ -52,3 +54,27 @@ def entropy(partition):
     class_labels = list(set([instance[-1] for instance in partition]))
     class_proportions = [len([instance for instance in partition if instance[-1] == label])/len(partition) for label in class_labels]
     return -sum([p * np.log2(p) for p in class_proportions])
+
+def evaluate_model(classifier, X, y):
+    """Evaluates the model by computing the accuracy of the classifier
+        with k-fold stratified cross validation"""
+    X_train_folds, X_test_folds = myevaluation.stratified_kfold_cross_validation(X, y, 10, shuffle=True)
+    y_test = []
+    y_pred = []
+    for fold in range(len(X_train_folds)):
+        X_train = [X[i] for i in X_train_folds[fold]]
+        y_train = [y[i] for i in X_train_folds[fold]]
+        X_test = [X[i] for i in X_test_folds[fold]]
+        y_fold_test = [y[i] for i in X_test_folds[fold]]
+        classifier.fit(X_train, y_train)
+        y_fold_pred = classifier.predict(X_test)
+        y_test.extend(y_fold_test)
+        y_pred.extend(y_fold_pred)
+    accuracy = myevaluation.accuracy_score(y_test, y_pred)
+    print("Accuracy:", accuracy)
+    print("Error rate:", 1 - accuracy)
+    print("Precision:", myevaluation.binary_precision_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
+    print("Recall:", myevaluation.binary_recall_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
+    print("F1 score:", myevaluation.binary_f1_score(y_test, y_pred, labels=['A', 'H'], pos_label='H'))
+    print("Confusion matrix:")
+    print(tabulate(myevaluation.confusion_matrix(y_test, y_pred, labels=['A', 'H']), headers=['A', 'H']))  
