@@ -1,7 +1,7 @@
 
 import matplotlib.pyplot as plt
 
-import mysklearn.myutils as utils
+import mysklearn.utils as utils
 
 def create_bar_chart(title, xlabel, ylabel, values, counts):
     plt.figure(figsize=(30,10))
