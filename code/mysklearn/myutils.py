@@ -1,5 +1,5 @@
 import numpy as np
-import myevaluation
+import mysklearn.myevaluation as myevaluation
 from tabulate import tabulate
 
 def compute_euclidean_distance(v1, v2):
