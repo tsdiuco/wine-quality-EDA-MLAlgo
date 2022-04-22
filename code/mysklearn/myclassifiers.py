@@ -580,7 +580,7 @@ class RandomForestClassifier:
         self.max_depth = max_depth
         self.num_features = n_features
     
-    def train(self, train, header, max_depth, num_trees, num_features):
+    def fit(self, train, header, max_depth, num_trees, num_features):
         """Trains a random forest classifier.
 
         Args:
