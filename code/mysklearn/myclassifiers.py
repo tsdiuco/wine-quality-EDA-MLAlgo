@@ -563,36 +563,20 @@ class MyDecisionTreeClassifier:
         return partitions
 
 
-class RandomForestClassifier:
+class MyRandomForestClassifier:
 
-    def __init__(self, n_trees, max_depth, min_size, n_features, m):
+    def __init__(self, n_trees, m):
         """Initializes a RandomForestClassifier.
 
         Args:
             n_trees(int): The number of trees in the forest.
-            max_depth(int): The maximum depth of each tree.
-            min_size(int): The minimum number of samples in a node.
-            n_features(int): The number of features to consider when splitting.
+            m(int): The number of trees to select from the forest.
         """
         self.n_trees = n_trees
         self.m = m
-        self.min_size = min_size
-        self.max_depth = max_depth
-        self.num_features = n_features
-    
-    def fit(self, train, header, max_depth, num_trees, num_features):
+
+    def fit(self, X, y):
         """Trains a random forest classifier.
-
-        Args:
-            train(list of list of obj): The list of training instances (samples).
-                The shape of train is (n_train_samples, n_features)
-            header(list of str): The list of attribute names.
-            max_depth(int): The maximum depth of the tree.
-            num_trees(int): The number of trees in the forest.
-            num_features(int): The number of features to consider when training each tree.
-
-        Returns:
-            forest(list of DecisionTree): The list of decision trees.
 
         1. Generate a random stratified test set consisting of one third of the original data set,
             with the remaining two thirds of the instances forming the "remainder set".
@@ -604,22 +588,19 @@ class RandomForestClassifier:
         3. Select the M most accurate of the N decision trees using the corresponding validation sets.
         4. Use simple majority voting to predict classes using the M decision trees over the test set.
         """
-        # Generate a random stratified test set consisting of one third of the original data set, with the remaining two thirds of the instances forming the "remainder set".
-        X_train_folds, X_test_folds = myutils.stratified_kfold_cross_validation(train, [], n_splits=3)
-        X_train_fold = X_train_folds[0]
-        X_test_fold = X_test_folds[0]
-        test_set = [train[i] for i in X_test_fold]
-        remainder_set = [train[i] for i in X_train_fold]
         trees = {}
         for i in range(self.n_trees):
-            X_train, X_test, y_train, y_test = myevaluation.train_test_split(remainder_set)
+            X_train, X_test, y_train, y_test = myevaluation.train_test_split(X, y)
             classifier = MyDecisionTreeClassifier(random_selection=True)
             classifier.fit(X_train, y_train)
             # add accuracy
-            trees[classifier] = classifier.predict(test_set)
+            trees[classifier] = myevaluation.accuracy_score(classifier.predict(X_test), y_test)
         self.forest = []
-        for accuracy_value in sorted(trees, key=trees.get, reverse=True)[:self.m]:
-            self.forest.append(accuracy_value)
+        # append the top m trees to the forest
+        for i in range(self.m):
+            max_accuracy_tree = max(trees, key=trees.get)
+            self.forest.append(max_accuracy_tree)
+            trees.pop(max_accuracy_tree)
 
     def predict(self, test):
         """Predicts the class labels for the test instances.
