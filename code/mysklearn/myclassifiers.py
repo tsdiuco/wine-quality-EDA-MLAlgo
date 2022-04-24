@@ -561,6 +561,39 @@ class MyDecisionTreeClassifier:
                 if instance[att_index] == att_value:
                     partitions[att_value].append(instance)
         return partitions
+    
+    def predict_instance(self, instance):
+        """Predicts the class label of a single instance.
+
+        Args:
+            instance(list of obj): The instance to predict.
+
+        Returns:
+            label(str): The predicted class label.
+        """
+        curr_node = self.tree
+        success = True
+        while curr_node[0] != "Leaf":
+            attribute = curr_node[1]
+            attribute_index = self.header.index(attribute)
+            attribute_val = instance[attribute_index]
+            found_node = False
+            for node in curr_node[2:]:
+                if node[1] == attribute_val:
+                    curr_node = node[2]
+                    found_node = True
+                    break
+            if found_node is False:
+                # we got to the end of the tree without finding a match
+                # unable to classify instance
+                success = False
+                break
+        # now, curr_node is a leaf node
+        if success is True:
+            return curr_node[1]
+        else:
+            return None
+
 
 
 class MyRandomForestClassifier:
@@ -617,6 +650,6 @@ class MyRandomForestClassifier:
         for instance in test:
             instance_predictions = []
             for tree in self.forest:
-                instance_predictions.append(tree.predict(instance))
+                instance_predictions.append(tree.predict_instance(instance))
             predictions.append(max(set(instance_predictions), key=instance_predictions.count))
         return predictions
