@@ -297,7 +297,7 @@ class MyDecisionTreeClassifier:
             https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
         Terminology: instance = sample = row and attribute = feature = column
     """
-    def __init__(self, random_selection=False):
+    def __init__(self, random_selection: int=None):
         """Initializer for MyDecisionTreeClassifier.
         """
         self.X_train = None
@@ -461,10 +461,11 @@ class MyDecisionTreeClassifier:
 
         # select an attribute to split on
         attribute = None
-        if self.random_selection:
-            attribute = self.select_random_attribute(current_instances, available_attributes)
+        if self.random_selection is not None:
+            attribute_set = self.select_random_attributes(available_attributes)
         else:
-            attribute = self.select_attribute(current_instances, available_attributes)
+            attribute_set = available_attributes
+        attribute = self.select_attribute(current_instances, attribute_set)
         available_attributes.remove(attribute) # can't split on this again in
         # this subtree
         tree = ["Attribute", attribute] # start to build the tree!!
@@ -531,10 +532,10 @@ class MyDecisionTreeClassifier:
                 min_attribute_entropy = Enew
         return min_attribute
 
-    def select_random_attribute(self, instances, attributes):
-        # random attribute selection
-        rand_index = np.random.randint(0, len(attributes))
-        return attributes[rand_index]
+    def select_random_attributes(self, attributes):
+        attribute_set = []
+        for i in range(self.random_selection):
+            attribute_set.append()
     
     def partition_instances(self, instances, split_attribute):
         """Partitions instances by attribute value.
@@ -598,7 +599,7 @@ class MyDecisionTreeClassifier:
 
 class MyRandomForestClassifier:
 
-    def __init__(self, n_trees, m):
+    def __init__(self, n_trees, m, f):
         """Initializes a RandomForestClassifier.
 
         Args:
@@ -607,6 +608,7 @@ class MyRandomForestClassifier:
         """
         self.n_trees = n_trees
         self.m = m
+        self.f = f
 
     def fit(self, X, y):
         """Trains a random forest classifier.
@@ -624,7 +626,7 @@ class MyRandomForestClassifier:
         trees = {}
         for i in range(self.n_trees):
             X_train, X_test, y_train, y_test = myevaluation.train_test_split(X, y)
-            classifier = MyDecisionTreeClassifier(random_selection=True)
+            classifier = MyDecisionTreeClassifier(random_selection=self.f)
             classifier.fit(X_train, y_train)
             # add accuracy
             trees[classifier] = myevaluation.accuracy_score(classifier.predict(X_test), y_test)
@@ -648,7 +650,8 @@ class MyRandomForestClassifier:
         """
         predictions = []
         for instance in test:
-            instance_predictions = []
+            instance_predictions = [] 
+            tree: MyDecisionTreeClassifier
             for tree in self.forest:
                 instance_predictions.append(tree.predict_instance(instance))
             predictions.append(max(set(instance_predictions), key=instance_predictions.count))

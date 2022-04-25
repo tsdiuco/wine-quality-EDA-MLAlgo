@@ -1,3 +1,4 @@
+from tkinter import N
 import numpy as np
 
 from mysklearn.myclassifiers import MyDecisionTreeClassifier
@@ -12,7 +13,8 @@ from mysklearn.myevaluation import classification_report
 from mysklearn.mysimplelinearregressor import MySimpleLinearRegressor
 from mysklearn.myclassifiers import MySimpleLinearRegressionClassifier,\
     MyKNeighborsClassifier,\
-    MyDummyClassifier
+    MyDummyClassifier,\
+    MyRandomForestClassifier
 
 # note: order is actual/received student value, expected/solution
 def test_simple_linear_regression_classifier_fit():
@@ -605,7 +607,43 @@ def test_decision_tree_classifier_predict():
     assert y_pred == y_test
 
 def test_random_forest_classifier_fit():
-    pass
+    # interview dataset
+    header = ["level", "lang", "tweets", "phd", "interviewed_well"]
+    table = [
+        ["Senior", "Java", "no", "no", "False"],
+        ["Senior", "Java", "no", "yes", "False"],
+        ["Mid", "Python", "no", "no", "True"],
+        ["Junior", "Python", "no", "no", "True"],
+        ["Junior", "R", "yes", "no", "True"],
+        ["Junior", "R", "yes", "yes", "False"],
+        ["Mid", "R", "yes", "yes", "True"],
+        ["Senior", "Python", "no", "no", "False"],
+        ["Senior", "R", "yes", "no", "True"],
+        ["Junior", "Python", "yes", "no", "True"],
+        ["Senior", "Python", "yes", "yes", "True"],
+        ["Mid", "Python", "no", "yes", "True"],
+        ["Mid", "Java", "yes", "no", "True"],
+        ["Junior", "Python", "no", "yes", "False"]
+    ]
+    classifier = MyRandomForestClassifier(n_trees=20, m=7, f=2)
 
 def test_random_forest_classifier_predict():
-    pass
+    # interview dataset
+    header = ["level", "lang", "tweets", "phd", "interviewed_well"]
+    table = [
+        ["Senior", "Java", "no", "no", "False"],
+        ["Senior", "Java", "no", "yes", "False"],
+        ["Mid", "Python", "no", "no", "True"],
+        ["Junior", "Python", "no", "no", "True"],
+        ["Junior", "R", "yes", "no", "True"],
+        ["Junior", "R", "yes", "yes", "False"],
+        ["Mid", "R", "yes", "yes", "True"],
+        ["Senior", "Python", "no", "no", "False"],
+        ["Senior", "R", "yes", "no", "True"],
+        ["Junior", "Python", "yes", "no", "True"],
+        ["Senior", "Python", "yes", "yes", "True"],
+        ["Mid", "Python", "no", "yes", "True"],
+        ["Mid", "Java", "yes", "no", "True"],
+        ["Junior", "Python", "no", "yes", "False"]
+    ]
+    classifier = MyRandomForestClassifier(n_trees=20, m=7, f=2)
