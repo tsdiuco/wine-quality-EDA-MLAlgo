@@ -1,6 +1,7 @@
 from math import inf
 from os import NGROUPS_MAX
 from random import random
+from random import shuffle
 
 from mysklearn import myutils
 
@@ -532,10 +533,22 @@ class MyDecisionTreeClassifier:
                 min_attribute_entropy = Enew
         return min_attribute
 
-    def select_random_attributes(self, attributes):
-        attribute_set = []
+    def select_random_attributes(self, available_attributes):
+        """Selects f random attributes from the available attributes.
+
+        Args:
+            available_attributes(list of str): The list of available attributes.
+            f(int): The number of attributes to select.
+
+        Returns:
+            selected_attributes(list of str): The selected attributes.
+        """
+        selected_attributes = []
+        shuffled_attributes = available_attributes.copy()
+        shuffle(shuffled_attributes)
         for i in range(self.random_selection):
-            attribute_set.append()
+            selected_attributes.append(shuffled_attributes[i])
+        return selected_attributes
     
     def partition_instances(self, instances, split_attribute):
         """Partitions instances by attribute value.
