@@ -626,6 +626,9 @@ def test_random_forest_classifier_fit():
         ["Junior", "Python", "no", "yes", "False"]
     ]
     classifier = MyRandomForestClassifier(n_trees=20, m=7, f=2)
+    X = [x[0:4] for x in table]
+    y = [x[4] for x in table]
+    classifier.fit(X, y)
 
 def test_random_forest_classifier_predict():
     # interview dataset
@@ -647,3 +650,9 @@ def test_random_forest_classifier_predict():
         ["Junior", "Python", "no", "yes", "False"]
     ]
     classifier = MyRandomForestClassifier(n_trees=20, m=7, f=2)
+    X = [x[0:4] for x in table]
+    y = [x[4] for x in table]
+    classifier.fit(X, y)
+    new_instance = [["Mid", "Python", "yes", "yes"]]
+    pred = classifier.predict(new_instance)
+    assert pred == ["True"]

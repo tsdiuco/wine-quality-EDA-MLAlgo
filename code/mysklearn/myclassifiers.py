@@ -546,7 +546,8 @@ class MyDecisionTreeClassifier:
         selected_attributes = []
         shuffled_attributes = available_attributes.copy()
         shuffle(shuffled_attributes)
-        for i in range(self.random_selection):
+        num_attributes = min(self.random_selection, len(available_attributes))
+        for i in range(num_attributes):
             selected_attributes.append(shuffled_attributes[i])
         return selected_attributes
     
