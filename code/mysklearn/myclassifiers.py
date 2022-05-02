@@ -1,4 +1,7 @@
 from math import inf
+from os import NGROUPS_MAX
+from random import random
+from random import shuffle
 
 from mysklearn import myutils
 
@@ -295,12 +298,13 @@ class MyDecisionTreeClassifier:
             https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
         Terminology: instance = sample = row and attribute = feature = column
     """
-    def __init__(self):
+    def __init__(self, random_selection: int=None):
         """Initializer for MyDecisionTreeClassifier.
         """
         self.X_train = None
         self.y_train = None
         self.tree = None
+        self.random_selection = random_selection
 
     def fit(self, X_train, y_train):
         """Fits a decision tree classifier to X_train and y_train using the TDIDT
@@ -457,7 +461,12 @@ class MyDecisionTreeClassifier:
             # basic approach (uses recursion!!):
 
         # select an attribute to split on
-        attribute = self.select_attribute(current_instances, available_attributes)
+        attribute = None
+        if self.random_selection is not None:
+            attribute_set = self.select_random_attributes(available_attributes)
+        else:
+            attribute_set = available_attributes
+        attribute = self.select_attribute(current_instances, attribute_set)
         available_attributes.remove(attribute) # can't split on this again in
         # this subtree
         tree = ["Attribute", attribute] # start to build the tree!!
@@ -523,6 +532,24 @@ class MyDecisionTreeClassifier:
                 min_attribute = attribute
                 min_attribute_entropy = Enew
         return min_attribute
+
+    def select_random_attributes(self, available_attributes):
+        """Selects f random attributes from the available attributes.
+
+        Args:
+            available_attributes(list of str): The list of available attributes.
+            f(int): The number of attributes to select.
+
+        Returns:
+            selected_attributes(list of str): The selected attributes.
+        """
+        selected_attributes = []
+        shuffled_attributes = available_attributes.copy()
+        shuffle(shuffled_attributes)
+        num_attributes = min(self.random_selection, len(available_attributes))
+        for i in range(num_attributes):
+            selected_attributes.append(shuffled_attributes[i])
+        return selected_attributes
     
     def partition_instances(self, instances, split_attribute):
         """Partitions instances by attribute value.
@@ -549,3 +576,97 @@ class MyDecisionTreeClassifier:
                 if instance[att_index] == att_value:
                     partitions[att_value].append(instance)
         return partitions
+    
+    def predict_instance(self, instance):
+        """Predicts the class label of a single instance.
+
+        Args:
+            instance(list of obj): The instance to predict.
+
+        Returns:
+            label(str): The predicted class label.
+        """
+        curr_node = self.tree
+        success = True
+        while curr_node[0] != "Leaf":
+            attribute = curr_node[1]
+            attribute_index = self.header.index(attribute)
+            attribute_val = instance[attribute_index]
+            found_node = False
+            for node in curr_node[2:]:
+                if node[1] == attribute_val:
+                    curr_node = node[2]
+                    found_node = True
+                    break
+            if found_node is False:
+                # we got to the end of the tree without finding a match
+                # unable to classify instance
+                success = False
+                break
+        # now, curr_node is a leaf node
+        if success is True:
+            return curr_node[1]
+        else:
+            return None
+
+
+
+class MyRandomForestClassifier:
+
+    def __init__(self, n_trees, m, f):
+        """Initializes a RandomForestClassifier.
+
+        Args:
+            n_trees(int): The number of trees in the forest.
+            m(int): The number of trees to select from the forest.
+        """
+        self.n_trees = n_trees
+        self.m = m
+        self.f = f
+
+    def fit(self, X, y):
+        """Trains a random forest classifier.
+
+        1. Generate a random stratified test set consisting of one third of the original data set,
+            with the remaining two thirds of the instances forming the "remainder set".
+        2. Generate N "random" decision trees using bootstrapping (giving a training and validation set)
+            over the remainder set. At each node, build your decision trees by randomly selecting F of
+            the remaining attributes as candidates to partition on. This is the standard random forest
+            approach discussed in class. Note that to build your decision trees you should still use entropy;
+            however, you are selecting from only a (randomly chosen) subset of the available attributes.
+        3. Select the M most accurate of the N decision trees using the corresponding validation sets.
+        4. Use simple majority voting to predict classes using the M decision trees over the test set.
+        """
+        trees = {}
+        for i in range(self.n_trees):
+            X_train, X_test, y_train, y_test = myevaluation.train_test_split(X, y)
+            classifier = MyDecisionTreeClassifier(random_selection=self.f)
+            classifier.fit(X_train, y_train)
+            # add accuracy
+            trees[classifier] = myevaluation.accuracy_score(classifier.predict(X_test), y_test)
+        self.forest = []
+        # append the top m trees to the forest
+        for i in range(self.m):
+            max_accuracy_tree = max(trees, key=trees.get)
+            self.forest.append(max_accuracy_tree)
+            trees.pop(max_accuracy_tree)
+
+    def predict(self, test):
+        """Predicts the class labels for the test instances.
+
+        Args:
+            test(list of list of obj): The list of test instances.
+                The shape of test is (n_test_samples, n_features)
+            forest(list of DecisionTree): The list of decision trees.
+
+        Returns:
+            predictions(list of str): The list of class labels.
+        """
+        predictions = []
+        for instance in test:
+            instance_predictions = [] 
+            tree: MyDecisionTreeClassifier
+            for tree in self.forest:
+                instance_predictions.append(tree.predict_instance(instance))
+            predictions.append(max(set(instance_predictions), key=instance_predictions.count))
+        return predictions
