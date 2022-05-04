@@ -72,3 +72,24 @@ def evaluate_model(classifier, X, y):
     accuracy = myevaluation.accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
     print("Error rate:", 1 - accuracy)
+
+def bin_data(data_column, bin_size = 10):
+    minv = min(data_column)
+    maxv = max(data_column)
+    binned_col = []
+    for d in data_column:
+        b = int((d-minv) / (maxv - minv) * bin_size)
+        binned_col.append(b)
+    return binned_col
+
+def bin_all(X):
+    binned_X_cols = []
+    for col in range(len(X[0])):
+        column = [row[col] for row in X]
+        binned = bin_data(column)
+        binned_X_cols.append(binned)
+    binned_X = []
+    for i in range(len(binned_X_cols)):
+        row = [item[i] for item in binned_X_cols]
+        binned_X.append(row)
+    return binned_X

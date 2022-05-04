@@ -1,9 +1,16 @@
 from math import inf
 from random import shuffle
 
-from mysklearn.myutils import *
+# from mysklearn.myutils import *
+# from myutils import *
 
-import mysklearn.myevaluation as myevaluation
+from mysklearn import myutils as myutils
+from mysklearn import myevaluation
+# import mysklearn.myutils as myutils
+# import mysklearn.myevaluation as myevaluation
+
+# import mysklearn.myevaluation as myevaluation
+# import myevaluation as myevaluation
 
 class MySimpleLinearRegressionClassifier:
     """Represents a simple linear regression classifier that discretizes
@@ -119,9 +126,9 @@ class MyKNeighborsClassifier:
             for i, train_instance in enumerate(self.X_train):
                 dist = 0
                 if self.categorical:
-                    dist = compute_categorical_distance(train_instance, test_instance)
+                    dist = myutils.compute_categorical_distance(train_instance, test_instance)
                 else:
-                    dist = compute_euclidean_distance(train_instance, test_instance)
+                    dist = myutils.compute_euclidean_distance(train_instance, test_instance)
                 row_distances.append(dist)
                 row_indexes_dists.append([i, dist])
             distances.append(dist)
@@ -633,6 +640,10 @@ class MyRandomForestClassifier:
         3. Select the M most accurate of the N decision trees using the corresponding validation sets.
         4. Use simple majority voting to predict classes using the M decision trees over the test set.
         """
+        self.X = X
+        self.y = y
+        X = myutils.bin_all(X)
+        self.binned_X = X
         trees = {}
         for i in range(self.n_trees):
             X_train, X_test, y_train, y_test = myevaluation.train_test_split(X, y)
@@ -647,7 +658,7 @@ class MyRandomForestClassifier:
             self.forest.append(max_accuracy_tree)
             trees.pop(max_accuracy_tree)
 
-    def predict(self, test):
+    def predict(self, test, bin=False):
         """Predicts the class labels for the test instances.
 
         Args:
@@ -658,11 +669,18 @@ class MyRandomForestClassifier:
         Returns:
             predictions(list of str): The list of class labels.
         """
+        if bin:
+            binned_test = []
+            for test_instance in test:
+                binned_instance = myutils.bin_values(test_instance, self)
+                binned_test.append(binned_instance)
+            test = binned_test
         predictions = []
         for instance in test:
             instance_predictions = []
             tree: MyDecisionTreeClassifier
             for tree in self.forest:
                 instance_predictions.append(tree.predict_instance(instance))
+            instance_predictions = [i for i in instance_predictions if i is not None]
             predictions.append(max(set(instance_predictions), key=instance_predictions.count))
         return predictions
