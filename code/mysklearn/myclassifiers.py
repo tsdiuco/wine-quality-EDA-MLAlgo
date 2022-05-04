@@ -1,14 +1,9 @@
 from math import inf
-from os import NGROUPS_MAX
-from random import random
 from random import shuffle
 
-from mysklearn import myutils
-
-from mysklearn import myutils
-
-from mysklearn.mysimplelinearregressor import MySimpleLinearRegressor
 from mysklearn.myutils import *
+
+import mysklearn.myevaluation as myevaluation
 
 class MySimpleLinearRegressionClassifier:
     """Represents a simple linear regression classifier that discretizes
@@ -400,7 +395,7 @@ class MyDecisionTreeClassifier:
                 attribute_string += " AND " + attribute_name + " == " + str(attribute_value)
             label = rule[1]
             print("IF " + attribute_string + " THEN " + class_name + " = " + str(label))
-    
+
     def get_rules(self, tree):
         """ Get rules from the tree.
 
@@ -550,7 +545,7 @@ class MyDecisionTreeClassifier:
         for i in range(num_attributes):
             selected_attributes.append(shuffled_attributes[i])
         return selected_attributes
-    
+
     def partition_instances(self, instances, split_attribute):
         """Partitions instances by attribute value.
 
@@ -576,7 +571,7 @@ class MyDecisionTreeClassifier:
                 if instance[att_index] == att_value:
                     partitions[att_value].append(instance)
         return partitions
-    
+
     def predict_instance(self, instance):
         """Predicts the class label of a single instance.
 
@@ -620,6 +615,7 @@ class MyRandomForestClassifier:
             n_trees(int): The number of trees in the forest.
             m(int): The number of trees to select from the forest.
         """
+
         self.n_trees = n_trees
         self.m = m
         self.f = f
@@ -664,7 +660,7 @@ class MyRandomForestClassifier:
         """
         predictions = []
         for instance in test:
-            instance_predictions = [] 
+            instance_predictions = []
             tree: MyDecisionTreeClassifier
             for tree in self.forest:
                 instance_predictions.append(tree.predict_instance(instance))

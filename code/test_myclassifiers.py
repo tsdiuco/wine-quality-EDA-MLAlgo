@@ -1,20 +1,12 @@
-from tkinter import N
 import numpy as np
-
-from mysklearn.myclassifiers import MyDecisionTreeClassifier
-
-from re import T
-import numpy as np
-
-from mysklearn.myclassifiers import MyNaiveBayesClassifier
-import numpy as np
-from mysklearn.myevaluation import classification_report
 
 from mysklearn.mysimplelinearregressor import MySimpleLinearRegressor
 from mysklearn.myclassifiers import MySimpleLinearRegressionClassifier,\
     MyKNeighborsClassifier,\
     MyDummyClassifier,\
-    MyRandomForestClassifier
+    MyRandomForestClassifier,\
+    MyDecisionTreeClassifier,\
+    MyNaiveBayesClassifier
 
 # note: order is actual/received student value, expected/solution
 def test_simple_linear_regression_classifier_fit():
@@ -219,7 +211,7 @@ def test_naive_bayes_classifier_fit():
     X_iphone_train = [x[0:3] for x in iphone_table]
     y_iphone_train = [x[3] for x in iphone_table]
     classifier.fit(X_iphone_train, y_iphone_train)
-    assert classifier.priors == {'yes': 2/3, 'no': 1/3} 
+    assert classifier.priors == {'yes': 2/3, 'no': 1/3}
     assert classifier.posteriors == {'yes': {'att1': {1: 0.2, 2: 0.8}, 'att2': {1: 0.3, 2: 0.4, 3: 0.3}, 'att3': {'fair': 0.7, 'excellent': 0.3}}, 'no': {'att1': {1: 0.6, 2: 0.4}, 'att2': {1: 0.2, 2: 0.4, 3: 0.4}, 'att3': {'fair': 0.4, 'excellent': 0.6}}}
 
     # Bramer 3.2 train dataset
@@ -360,12 +352,12 @@ def test_decision_tree_classifier_fit():
     # note: the attribute values are sorted alphabetically
     interview_tree = \
             ["Attribute", "att0",
-                ["Value", "Junior", 
+                ["Value", "Junior",
                     ["Attribute", "att3",
-                        ["Value", "no", 
+                        ["Value", "no",
                             ["Leaf", "True", 3, 5]
                         ],
-                        ["Value", "yes", 
+                        ["Value", "yes",
                             ["Leaf", "False", 2, 5]
                         ]
                     ]
@@ -424,11 +416,11 @@ def test_decision_tree_classifier_fit():
         ["Attribute", "att0",
             ["Value", "A",
                 ["Attribute", "att4",
-                    ["Value", "A", 
+                    ["Value", "A",
                         ["Leaf", "FIRST", 5, 14]
                     ],
                     ["Value", "B",
-                        ["Attribute", "att3", 
+                        ["Attribute", "att3",
                             ["Value", "A",
                                 ["Attribute", "att1",
                                     ["Value", "A",
@@ -539,7 +531,7 @@ def test_decision_tree_classifier_predict():
     y_test = ["True", "False"]
     y_pred = classifier.predict(X_test)
     assert y_pred == y_test
-    
+
     # bramer degrees dataset
     degrees_header = ["SoftEng", "ARIN", "HCI", "CSA", "Project", "Class"]
     degrees_table = [

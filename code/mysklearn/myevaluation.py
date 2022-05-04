@@ -1,7 +1,4 @@
-from mysklearn import myutils
-
 from math import ceil
-from mysklearn import myutils
 import numpy.random as random
 
 def train_test_split(X, y, test_size=0.33, random_state=None, shuffle=True):
@@ -357,7 +354,7 @@ def classification_report(y_true, y_pred, labels=None, output_dict: bool = False
             weighted average (averaging the support-weighted mean per label).
             Micro average (averaging the total true positives, false negatives and false positives)
             multi-class with a subset of classes, because it corresponds to accuracy otherwise
-            and would be the same for all metrics. 
+            and would be the same for all metrics.
 
     Notes:
         Loosely based on sklearn's classification_report():

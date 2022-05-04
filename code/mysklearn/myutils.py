@@ -1,6 +1,5 @@
 import numpy as np
 import mysklearn.myevaluation as myevaluation
-from tabulate import tabulate
 
 def compute_euclidean_distance(v1, v2):
     return np.sqrt(sum([(v1[i] - v2[i]) ** 2 for i in range(len(v1))]))
@@ -73,4 +72,3 @@ def evaluate_model(classifier, X, y):
     accuracy = myevaluation.accuracy_score(y_test, y_pred)
     print("Accuracy:", accuracy)
     print("Error rate:", 1 - accuracy)
-    

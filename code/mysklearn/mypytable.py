@@ -1,4 +1,4 @@
-from mysklearn import myutils
+import mysklearn.myutils as myutils
 """MyPyTable class for working with csv data
 """
 import copy
@@ -68,7 +68,7 @@ class MyPyTable:
             return [row[col_index] for row in self.data]
         else:
             return [row[col_index] for row in self.data if row[col_index]!="NA"]
-    
+
     def replace_column(self, column_name, new_column):
         col_index = self.column_names.index(column_name)
         new_data = []
@@ -77,12 +77,12 @@ class MyPyTable:
             row[col_index] = new_column[i]
             new_data.append(row)
         self.data = new_data
-    
+
     def get_normalized_columns(self, column_list):
         for col in column_list:
             self.replace_column(col, myutils.normalize(self.get_column(col)))
         return self.get_columns(column_list)
-    
+
     def get_columns(self, column_list):
         """Extracts a list of columns from the table data as a list of lists.
 
