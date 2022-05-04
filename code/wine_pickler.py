@@ -1,4 +1,4 @@
-from mysklearn.myclassifiers import MyRandomForestClassifier
+from mysklearn.myclassifiers import MyKNeighborsClassifier
 from mysklearn.mypytable import MyPyTable
 import mysklearn.myutils as myutils
 
@@ -30,11 +30,11 @@ def main():
 
     X_train, y_train = get_training_sets(wine_table)
 
-    wine_random_forest = MyRandomForestClassifier(n_trees=20, m=5, f=3)
-    wine_random_forest.fit(X_train, y_train)
+    wine_knn = MyKNeighborsClassifier(n_neighbors=5)
+    wine_knn.fit(X_train, y_train)
 
     outfile = open("tree.p", "wb")
-    pickle.dump(wine_random_forest, outfile)
+    pickle.dump(wine_knn, outfile)
     outfile.close()
 
 if __name__ == "__main__":
