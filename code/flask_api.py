@@ -2,6 +2,8 @@ import pickle
 import os
 from flask import Flask, jsonify, request
 
+import mysklearn.myutils as myutils
+
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
@@ -20,14 +22,19 @@ def predict():
     pH = request.args.get("pH", "")
     sulphates = request.args.get("sulphates", "")
     alcohol = request.args.get("alcohol", "")
-    print([fixed_acidity, citric_acid, residual_sugar, pH, sulphates, alcohol])
 
-    prediction = predict_wine_quality([[fixed_acidity, citric_acid, residual_sugar, pH, sulphates, alcohol]])
+    predict_instance = [float(fixed_acidity), float(citric_acid), float(residual_sugar), float(pH), float(sulphates), float(alcohol)]
+    infile = open("tree.p", "rb")
+    wine_random_forest = pickle.load(infile)
+    binned_instance = bin_values(predict_instance, wine_random_forest)
+
+    prediction = wine_random_forest.predict([binned_instance])
 
     if prediction is not None:
         result = {"prediction": prediction}
         return jsonify(result), 200
-    return "Error making prediction", 400
+    else:
+        return "Error making prediction", 400
 
 def bin_values(input_instance, classifier, bin_size=10):
     binned_instance = []
@@ -36,21 +43,14 @@ def bin_values(input_instance, classifier, bin_size=10):
         minv = min(X_col)
         maxv = max(X_col)
         val = input_instance[val_idx]
-        b = int((val-minv) / (maxv - minv) * bin_size)
-        binned_instance.append(b)
+        if val > maxv:
+            binned_instance.append(10)
+        elif val < minv:
+            binned_instance.append(0)
+        else:
+            b = int((val-minv) / (maxv - minv) * bin_size)
+            binned_instance.append(b)
     return binned_instance
-
-def predict_wine_quality(instance):
-    infile = open("tree.p", "rb")
-    wine_random_forest = pickle.load(infile)
-    infile.close()
-
-    try:
-        return wine_random_forest.predict(instance, bin=True)
-    except:
-        print("Error")
-        return None
-
 
 if __name__ == "__main__":
     port = os.environ.get("PORT", 5002)

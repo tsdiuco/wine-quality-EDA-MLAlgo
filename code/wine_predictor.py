@@ -2,11 +2,7 @@ import requests
 import json
 
 # url = "https://interview-flask-app.herokuapp.com/predict?"
-url = "http://127.0.0.1:5001/predict?"
-# add our query terms
-url += "fixed acidity=7.2&citric acid=0.01&residual sugar=1.7&pH=3.40&sulphates=0.59&alcohol=9.6"
-
-"http://127.0.0.1:5001/predict?fixed+acidity=7.2&citric+acid=0.01&residual+sugar=1.7&pH=3.40&sulphates=0.59&alcohol=9.6
+url = "http://127.0.0.1:5002/predict?fixed+acidity=5.6&citric+acid=0.05&residual+sugar=1.4&pH=3.56&sulphates=0.82&alcohol=12.9"
 # make the GET request
 
 response = requests.get(url)

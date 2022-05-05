@@ -682,5 +682,9 @@ class MyRandomForestClassifier:
             for tree in self.forest:
                 instance_predictions.append(tree.predict_instance(instance))
             instance_predictions = [i for i in instance_predictions if i is not None]
-            predictions.append(max(set(instance_predictions), key=instance_predictions.count))
+
+            if len(instance_predictions) == 0 :
+                predictions.append(5)
+            else:
+                predictions.append(max(set(instance_predictions), key=instance_predictions.count))
         return predictions

@@ -73,7 +73,7 @@ def evaluate_model(classifier, X, y):
     print("Accuracy:", accuracy)
     print("Error rate:", 1 - accuracy)
 
-def bin_data(data_column, bin_size = 10):
+def bin_data(data_column, bin_size=10):
     minv = min(data_column)
     maxv = max(data_column)
     binned_col = []
@@ -89,7 +89,23 @@ def bin_all(X):
         binned = bin_data(column)
         binned_X_cols.append(binned)
     binned_X = []
-    for i in range(len(binned_X_cols)):
+    for i in range(len(binned_X_cols[0])):
         row = [item[i] for item in binned_X_cols]
         binned_X.append(row)
     return binned_X
+
+def bin_values(input_instance, classifier, bin_size=10):
+    binned_instance = []
+    for val_idx in range(len(input_instance)):
+        X_col = [row[val_idx] for row in classifier.X]
+        minv = min(X_col)
+        maxv = max(X_col)
+        val = input_instance[val_idx]
+        if val > maxv:
+            binned_instance.append(10)
+        elif val < minv:
+            binned_instance.append(0)
+        else:
+            b = int((val-minv) / (maxv - minv) * bin_size)
+            binned_instance.append(b)
+    return binned_instance
